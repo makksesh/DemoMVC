@@ -1,4 +1,4 @@
-@model IEnumerable<DemoMVC.Models.Order>
+@model IEnumerable<DemoMVC.ViewModels.OrderItemListViewModel>
 
 @{
     ViewData["Title"] = "Заказы";
@@ -40,9 +40,9 @@ else
         {
             <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-start p-3">
                 <div>
-                    <div class="fw-bold">Артикул заказа: @order.Code</div>
-                    <div>Статус: @order.OrderStatus?.Name</div>
-                    <div class="text-muted">Адрес пункта выдачи: @order.PickupPoint?.Address</div>
+                    <div class="fw-bold">Артикул заказа: @order.ProductArticle</div>
+                    <div>Статус: @order.StatusName</div>
+                    <div class="text-muted">Адрес пункта выдачи: @order.PickupAddress</div>
                     <div class="text-muted">Дата заказа: @order.CreatedAt.ToString("dd.MM.yyyy")</div>
                 </div>
                 <div class="text-end d-flex flex-column align-items-end gap-2">
@@ -60,9 +60,9 @@ else
                     @if (User.IsInRole("Администратор"))
                     {
                         <div class="d-flex gap-2">
-                            <a asp-action="Edit" asp-route-id="@order.Id" class="btn btn-sm btn-outline-primary">✏️ Редактировать</a>
-                            <form asp-action="Delete" asp-route-id="@order.Id" method="post"
-                                  onsubmit="return confirm('Удалить заказ @order.Code?');">
+                            <a asp-action="Edit" asp-route-id="@order.OrderId" class="btn btn-sm btn-outline-primary">✏️ Редактировать</a>
+                            <form asp-action="Delete" asp-route-id="@order.OrderId" method="post"
+                                  onsubmit="return confirm('Удалить заказ @order.ProductArticle?');">
                                 @Html.AntiForgeryToken()
                                 <button type="submit" class="btn btn-sm btn-outline-danger">🗑️ Удалить</button>
                             </form>

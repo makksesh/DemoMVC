@@ -1,4 +1,4 @@
-@model DemoMVC.Models.Order
+@model DemoMVC.ViewModels.OrderEditViewModel
 
 @{
     ViewData["Title"] = "Добавить заказ";
@@ -13,9 +13,11 @@
             <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
 
             <div class="mb-3">
-                <label asp-for="Code" class="form-label fw-semibold">Артикул</label>
-                <input asp-for="Code" class="form-control" placeholder="Введите артикул заказа" />
-                <span asp-validation-for="Code" class="text-danger small"></span>
+                <label asp-for="ProductId" class="form-label fw-semibold">Артикул товара</label>
+                <select asp-for="ProductId" class="form-select" asp-items="ViewBag.ProductId">
+                    <option value="">— Выберите товар —</option>
+                </select>
+                <span asp-validation-for="ProductId" class="text-danger small"></span>
             </div>
 
             <div class="mb-3">

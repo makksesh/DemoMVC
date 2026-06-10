@@ -13,18 +13,21 @@ namespace DemoMVC.Controllers
     {
         private readonly AppDbContext _context;
         private readonly IWebHostEnvironment _env;
+        private readonly IAuthorizationService _authService;
 
-        public ProductsController(AppDbContext context, IWebHostEnvironment env)
+        public ProductsController(AppDbContext context, IWebHostEnvironment env, IAuthorizationService authService)
         {
             _context = context;
             _env     = env;
+            _authService = authService;
         }
 
         // ── Список товаров ────────────────────────────────────────────────────
 
         public async Task<IActionResult> Index(string? searchQuery, string? sortBy, int? supplierId)
         {
-            var isManagerOrAdmin = User.IsInRole("Модератор") || User.IsInRole("Администратор");
+            var staffCheck = await _authService.AuthorizeAsync(User, "StaffOnly");
+            var isStaff = staffCheck.Succeeded;
 
             var query = _context.Products
                 .Include(p => p.Category)
@@ -34,7 +37,7 @@ namespace DemoMVC.Controllers
                 .AsQueryable();
 
             // Поиск, фильтр и сортировка — только для менеджера/администратора
-            if (isManagerOrAdmin)
+            if (isStaff)
             {
                 if (!string.IsNullOrWhiteSpace(searchQuery))
                 {
@@ -81,7 +84,7 @@ namespace DemoMVC.Controllers
 
         // ── Создание товара (только Администратор) ────────────────────────────
 
-        [Authorize(Roles = "Администратор")]
+        [Authorize(Policy = "AdminOnly")]
         public IActionResult Create()
         {
             PopulateDropdowns();
@@ -89,7 +92,7 @@ namespace DemoMVC.Controllers
         }
 
         [HttpPost, ValidateAntiForgeryToken]
-        [Authorize(Roles = "Администратор")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> Create(
             [Bind("Article,Name,Description,MeasurementId,Price,Quantity,Discount,CategoryId,SupplierId,ManufacturerId")]
             Product product,
@@ -115,7 +118,7 @@ namespace DemoMVC.Controllers
 
         // ── Редактирование товара (только Администратор) ──────────────────────
 
-        [Authorize(Roles = "Администратор")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id is null) return NotFound();
@@ -128,7 +131,7 @@ namespace DemoMVC.Controllers
         }
 
         [HttpPost, ValidateAntiForgeryToken]
-        [Authorize(Roles = "Администратор")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> Edit(
             int id,
             [Bind("Id,Article,Name,Description,MeasurementId,Price,Quantity,Discount,ImagePath,CategoryId,SupplierId,ManufacturerId")]
@@ -167,7 +170,7 @@ namespace DemoMVC.Controllers
         // ── Удаление товара (только Администратор) ────────────────────────────
 
         [HttpPost, ActionName("Delete"), ValidateAntiForgeryToken]
-        [Authorize(Roles = "Администратор")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var product = await _context.Products.FindAsync(id);

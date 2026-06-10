@@ -4,19 +4,22 @@
     ViewData["Title"] = "Вход";
 }
 
-<%-- Центрированный блок авторизации --%>
 <div class="d-flex justify-content-center align-items-center" style="min-height: 60vh;">
     <div class="login-card">
+        <div class="login-logo">
+            <img src="~/img/logo.png" alt="Логотип"
+                 height="72" width="72"
+                 style="object-fit: contain;"
+                  />
+        </div>
+        
 
-        <h2 class="login-title">Добро пожаловать</h2>
-
-        <%-- Ошибки авторизации --%>
         @if (ViewData.ModelState.Values.SelectMany(v => v.Errors).Any())
         {
             <div class="login-errors">
                 @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
                 {
-                    <p>⚠️ @error.ErrorMessage</p>
+                    <p>@error.ErrorMessage</p>
                 }
             </div>
         }
@@ -36,11 +39,6 @@
                 <span asp-validation-for="Password" class="login-validation"></span>
             </div>
 
-            <div class="login-remember">
-                <input asp-for="RememberMe" />
-                <label asp-for="RememberMe">Запомнить меня</label>
-            </div>
-
             <button type="submit" class="login-btn-primary">Войти</button>
         </form>
 
@@ -52,119 +50,7 @@
 </div>
 
 <style>
-    .login-card {
-        background-color: var(--color-bg-alt);   /* #F5DEB3 - доп. фон */
-        border: 2px solid var(--color-accent);    /* #DEB887 - акцент */
-        border-radius: 12px;
-        padding: 36px 40px;
-        width: 100%;
-        max-width: 400px;
-        box-shadow: 0 4px 18px rgba(0,0,0,0.10);
-    }
-
-    .login-title {
-        font-family: Arial, sans-serif;
-        font-size: 1.4rem;
-        font-weight: bold;
-        text-align: center;
-        margin-bottom: 24px;
-        color: #5a3e1b;
-    }
-
-    .login-field {
-        display: flex;
-        flex-direction: column;
-        margin-bottom: 16px;
-    }
-
-    .login-label {
-        font-family: Arial, sans-serif;
-        font-size: 14px;
-        font-weight: bold;
-        margin-bottom: 4px;
-        color: #5a3e1b;
-    }
-
-    .login-input {
-        font-family: Arial, sans-serif;
-        font-size: 14px;
-        padding: 8px 10px;
-        border: 1px solid var(--color-accent);
-        border-radius: 6px;
-        background-color: var(--color-bg-main);
-        outline: none;
-        transition: border-color 0.2s;
-    }
-
-    .login-input:focus {
-        border-color: #b8860b;
-        box-shadow: 0 0 0 3px rgba(222, 184, 135, 0.35);
-    }
-
-    .login-validation {
-        color: red;
-        font-size: 12px;
-        margin-top: 2px;
-    }
-
-    .login-remember {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        margin-bottom: 20px;
-        font-family: Arial, sans-serif;
-        font-size: 14px;
-    }
-
-    .login-btn-primary {
-        width: 100%;
-        padding: 9px;
-        background-color: var(--color-accent);   /* #DEB887 */
-        color: #3b2a0e;
-        border: none;
-        border-radius: 6px;
-        font-family: Arial, sans-serif;
-        font-size: 15px;
-        font-weight: bold;
-        cursor: pointer;
-        transition: background-color 0.2s;
-    }
-
-    .login-btn-primary:hover {
-        background-color: #c9a96e;
-    }
-
-    .login-btn-secondary {
-        width: 100%;
-        padding: 8px;
-        background-color: var(--color-bg-main);  /* #FFFFFF */
-        color: #5a3e1b;
-        border: 1px solid var(--color-accent);
-        border-radius: 6px;
-        font-family: Arial, sans-serif;
-        font-size: 14px;
-        cursor: pointer;
-        transition: background-color 0.2s;
-    }
-
-    .login-btn-secondary:hover {
-        background-color: var(--color-bg-discount);
-    }
-
-    .login-errors {
-        background-color: #fff0f0;
-        border: 1px solid #f5c6c6;
-        border-radius: 6px;
-        padding: 10px 14px;
-        margin-bottom: 16px;
-        font-family: Arial, sans-serif;
-        font-size: 13px;
-        color: #c00;
-    }
-
-    .login-errors p {
-        margin: 0;
-    }
+    
 </style>
 
 @section Scripts {

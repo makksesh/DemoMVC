@@ -24,7 +24,6 @@ namespace DemoMVC.Controllers
             if (!ModelState.IsValid)
                 return View(model);
 
-            // Ищем пользователя с совпадающим логином и паролем
             var user = await _db.Users
                 .Include(u => u.Role)
                 .FirstOrDefaultAsync(u => u.Login == model.Login && u.Password == model.Password);
@@ -44,18 +43,15 @@ namespace DemoMVC.Controllers
 
             var identity   = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             var principal  = new ClaimsPrincipal(identity);
-            var properties = new AuthenticationProperties { IsPersistent = model.RememberMe };
 
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
 
-            // Редирект на исходную страницу или на список товаров
             if (!string.IsNullOrEmpty(model.ReturnUrl) && Url.IsLocalUrl(model.ReturnUrl))
                 return Redirect(model.ReturnUrl);
 
             return RedirectToAction("Index", "Products");
         }
 
-        // Вход без регистрации — роль «Гость»
         [HttpGet]
         public async Task<IActionResult> Guest()
         {

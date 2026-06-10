@@ -2,6 +2,9 @@
 
 namespace DemoMVC.Models
 {
+    /// <summary>
+    /// Номенклатура заказа
+    /// </summary>
     public class Order
     {
         public int Id { get; set; }
