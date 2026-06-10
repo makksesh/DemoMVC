@@ -24,8 +24,13 @@ namespace DemoMVC.Controllers
         // GET: Products
         public async Task<IActionResult> Index()
         {
-            var appDbContext = _context.Products.Include(p => p.Category).Include(p => p.Manufacturer).Include(p => p.Supplier);
-            return View(await appDbContext.ToListAsync());
+            var products = await _context.Products
+                .Include(p => p.Category)
+                .Include(p => p.Manufacturer)
+                .Include(p => p.Supplier)
+                .ToListAsync();
+
+            return View(products);
         }
 
         // GET: Products/Details/5

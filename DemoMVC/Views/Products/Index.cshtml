@@ -1,95 +1,72 @@
 @model IEnumerable<DemoMVC.Models.Product>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Список товаров";
 }
 
-<h1>Index</h1>
+<h2>Список товаров</h2>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Article)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Name)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Description)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.UnitOfMeasure)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Price)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Quantity)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Discount)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ImagePath)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Category)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Supplier)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Manufacturer)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Article)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Description)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.UnitOfMeasure)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Price)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Quantity)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Discount)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ImagePath)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Category.Id)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Supplier.Id)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Manufacturer.Id)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+<div class="product-list">
+    @foreach (var item in Model)
+    {
+        var hasDiscount = item.Discount > 0;
+        var bigDiscount = item.Discount > 17;
+        var outOfStock = item.Quantity <= 0;
+
+        var cardClass = "product-card";
+        if (outOfStock)
+        {
+            cardClass += " product-card-outofstock";   // голубой фон
+        }
+        else if (bigDiscount)
+        {
+            cardClass += " product-card-bigdicount";   // #FFDEAD
+        }
+
+        <div class="@cardClass">
+            <div class="product-photo">
+                @{
+                    var imgPath = string.IsNullOrEmpty(item.ImagePath)
+                        ? Url.Content("~/img/picture.png")   // заглушка
+                        : Url.Content("~/img/products/" + item.ImagePath);
+                }
+                <img src="@imgPath"
+                     alt="Фото товара"
+                     onerror="this.onerror=null; this.src='@Url.Content("~/img/picture.png")';" />
+            </div>
+
+            <div class="product-info">
+                <div class="product-header">
+                    <span class="product-category">@item.Category?.Name</span>
+                    <span class="product-name">@item.Name</span>
+                </div>
+                <div>Описание: @item.Description</div>
+                <div>Производитель: @item.Manufacturer?.Name</div>
+                <div>Поставщик: @item.Supplier?.Name</div>
+                <div>Единица измерения: @item.UnitOfMeasure</div>
+                <div>Количество на складе: @item.Quantity</div>
+
+                <div class="product-price">
+                    @if (hasDiscount)
+                    {
+                        <span class="old-price">@item.Price.ToString("0.00") ₽</span>
+                        <span class="new-price">
+                            @{
+                                var newPrice = item.Price * (1 - item.Discount / 100m);
+                            }
+                            @newPrice.ToString("0.00") ₽
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="new-price">@item.Price.ToString("0.00") ₽</span>
+                    }
+                </div>
+            </div>
+
+            <div class="product-discount">
+                <span>@item.Discount %</span>
+            </div>
+        </div>
+    }
+</div>

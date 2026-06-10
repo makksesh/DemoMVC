@@ -16,3 +16,68 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+.product-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.product-card {
+    display: flex;
+    border: 1px solid #ccc;
+    padding: 8px;
+    background-color: white;
+}
+
+.product-card-bigdicount {
+    background-color: #FFDEAD; /* скидка > 17% */
+}
+
+.product-card-outofstock {
+    background-color: #ADD8E6; /* голубой фон, нет товара */
+}
+
+.product-photo img {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+}
+
+.product-info {
+    flex: 1;
+    padding: 0 10px;
+    font-size: 14px;
+}
+
+.product-header {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.product-category {
+    margin-right: 10px;
+}
+
+.product-price {
+    margin-top: 5px;
+}
+
+.old-price {
+    text-decoration: line-through;
+    color: red;
+    margin-right: 8px;
+}
+
+.new-price {
+    color: black;
+    font-weight: bold;
+}
+
+.product-discount {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 80px;
+    font-weight: bold;
+}
