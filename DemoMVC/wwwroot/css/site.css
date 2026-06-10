@@ -1,22 +1,43 @@
+/* =====================================================
+   ЦВЕТОВАЯ СХЕМА ПРОЕКТА (меняйте только здесь)
+   =====================================================
+   --color-bg-main    : Основной фон (белый)
+   --color-bg-alt     : Дополнительный фон (пшеничный #F5DEB3)
+   --color-accent     : Акцент / целевое действие (#DEB887)
+   --color-bg-discount: Фон при скидке > 17% (#FFDEAD)
+   ===================================================== */
+:root {
+    --color-bg-main:     #FFFFFF;
+    --color-bg-alt:      #F5DEB3;
+    --color-accent:      #DEB887;
+    --color-bg-discount: #FFDEAD;
+    --font-main:         Arial, sans-serif;
+}
+
+/* ===== Базовые стили ===== */
 html {
-  font-size: 14px;
+    font-size: 14px;
+    font-family: var(--font-main);
 }
 
 @media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
+    html {
+        font-size: 16px;
+    }
 }
 
 html {
-  position: relative;
-  min-height: 100%;
+    position: relative;
+    min-height: 100%;
 }
 
 body {
-  margin-bottom: 60px;
+    margin-bottom: 60px;
+    background-color: var(--color-bg-main);
+    font-family: var(--font-main);
 }
 
+/* ===== Список товаров ===== */
 .product-list {
     display: flex;
     flex-direction: column;
@@ -27,11 +48,11 @@ body {
     display: flex;
     border: 1px solid #ccc;
     padding: 8px;
-    background-color: white;
+    background-color: var(--color-bg-alt); /* дополнительный фон */
 }
 
 .product-card-bigdicount {
-    background-color: #FFDEAD; /* скидка > 17% */
+    background-color: var(--color-bg-discount); /* скидка > 17% */
 }
 
 .product-card-outofstock {
@@ -48,6 +69,7 @@ body {
     flex: 1;
     padding: 0 10px;
     font-size: 14px;
+    font-family: var(--font-main);
 }
 
 .product-header {
@@ -80,4 +102,5 @@ body {
     justify-content: center;
     width: 80px;
     font-weight: bold;
+    background-color: var(--color-accent); /* акцент */
 }
