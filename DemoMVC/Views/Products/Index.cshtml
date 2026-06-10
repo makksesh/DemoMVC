@@ -4,6 +4,16 @@
     ViewData["Title"] = "Список товаров";
     var isManagerOrAdmin = User.IsInRole("Менеджер") || User.IsInRole("Администратор");
     var isAdmin = User.IsInRole("Администратор");
+
+    // Варианты сортировки для выпадающего списка
+    var sortOptions = new[]
+    {
+        (Value: "",           Text: "— Сортировка —"),
+        (Value: "price_asc",  Text: "Цена ↑"),
+        (Value: "price_desc", Text: "Цена ↓"),
+        (Value: "qty_asc",    Text: "Кол-во ↑"),
+        (Value: "qty_desc",   Text: "Кол-во ↓"),
+    };
 }
 
 <h2>Список товаров</h2>
@@ -50,11 +60,17 @@
         </div>
         <div class="col-md-3">
             <select id="sortSelect" class="form-select">
-                <option value="" @(string.IsNullOrEmpty(Model.SortBy) ? "selected" : "")>— Сортировка —</option>
-                <option value="price_asc" @(Model.SortBy == "price_asc" ? "selected" : "")>Цена ↑</option>
-                <option value="price_desc" @(Model.SortBy == "price_desc" ? "selected" : "")>Цена ↓</option>
-                <option value="qty_asc" @(Model.SortBy == "qty_asc" ? "selected" : "")>Кол-во ↑</option>
-                <option value="qty_desc" @(Model.SortBy == "qty_desc" ? "selected" : "")>Кол-во ↓</option>
+                @foreach (var opt in sortOptions)
+                {
+                    if (opt.Value == (Model.SortBy ?? ""))
+                    {
+                        <option value="@opt.Value" selected>@opt.Text</option>
+                    }
+                    else
+                    {
+                        <option value="@opt.Value">@opt.Text</option>
+                    }
+                }
             </select>
         </div>
         @if (isAdmin)
