@@ -25,7 +25,7 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-controller="Products" asp-action="Index">📦 Товары</a>
                         </li>
-                        @if (User.IsInRole("Менеджер") || User.IsInRole("Администратор"))
+                        @if (User.IsInRole("Модератор") || User.IsInRole("Администратор"))
                         {
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-controller="Orders" asp-action="Index">📋 Заказы</a>

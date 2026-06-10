@@ -24,12 +24,12 @@ namespace DemoMVC.Models
         public int CategoryId { get; set; }
         public int SupplierId { get; set; }
         public int ManufacturerId { get; set; }
-        public int MeasurementId { get; set; }
+        public int MeasurementId { get; set; } 
 
         // Навигационные свойства
-        public Category Category { get; set; } = null!;
-        public Supplier Supplier { get; set; } = null!;
-        public Manufacturer Manufacturer { get; set; } = null!;
-        public Measurement UnitOfMeasure { get; set; } = null!; 
+        public Category? Category { get; set; } 
+        public Supplier? Supplier { get; set; } 
+        public Manufacturer? Manufacturer { get; set; } 
+        public Measurement? UnitOfMeasure { get; set; } 
     }
 }

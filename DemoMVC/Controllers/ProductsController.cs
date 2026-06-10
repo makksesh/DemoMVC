@@ -24,7 +24,7 @@ namespace DemoMVC.Controllers
 
         public async Task<IActionResult> Index(string? searchQuery, string? sortBy, int? supplierId)
         {
-            var isManagerOrAdmin = User.IsInRole("Менеджер") || User.IsInRole("Администратор");
+            var isManagerOrAdmin = User.IsInRole("Модератор") || User.IsInRole("Администратор");
 
             var query = _context.Products
                 .Include(p => p.Category)
@@ -61,7 +61,7 @@ namespace DemoMVC.Controllers
                 };
             }
 
-            // Список поставщиков для фильтра (первый пункт сбрасывает фильтр)
+            // Список поставщиков для фильтра 
             var suppliers = await _context.Suppliers
                 .Select(s => new SelectListItem { Value = s.Id.ToString(), Text = s.Name })
                 .ToListAsync();

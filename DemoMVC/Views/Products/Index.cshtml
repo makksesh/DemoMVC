@@ -2,7 +2,7 @@
 
 @{
     ViewData["Title"] = "Список товаров";
-    var isManagerOrAdmin = User.IsInRole("Менеджер") || User.IsInRole("Администратор");
+    var isManagerOrAdmin = User.IsInRole("Модератор") || User.IsInRole("Администратор");
     var isAdmin = User.IsInRole("Администратор");
 
     // Варианты сортировки для выпадающего списка

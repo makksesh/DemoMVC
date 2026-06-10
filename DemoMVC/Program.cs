@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
+
 // Принудительно использовать инвариантную культуру для парсинга чисел
 var supportedCultures = new[] { System.Globalization.CultureInfo.InvariantCulture };
 
@@ -47,6 +48,6 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Account}/{action=Login}/{id?}");
+    pattern: "{controller=Products}/{action=Index}/{id?}");
 
 app.Run();

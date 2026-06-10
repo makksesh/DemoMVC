@@ -46,7 +46,7 @@ namespace DemoMVC.Controllers
             var principal  = new ClaimsPrincipal(identity);
             var properties = new AuthenticationProperties { IsPersistent = model.RememberMe };
 
-            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal, properties);
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
 
             // Редирект на исходную страницу или на список товаров
             if (!string.IsNullOrEmpty(model.ReturnUrl) && Url.IsLocalUrl(model.ReturnUrl))

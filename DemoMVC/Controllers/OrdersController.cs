@@ -8,7 +8,7 @@ using DemoMVC.Models;
 namespace DemoMVC.Controllers
 {
     // Доступ только для Менеджера и Администратора
-    [Authorize(Roles = "Менеджер,Администратор")]
+    [Authorize(Roles = "Модератор,Администратор")]
     public class OrdersController : Controller
     {
         private readonly AppDbContext _context;
