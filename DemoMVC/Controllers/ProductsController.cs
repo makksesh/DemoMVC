@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using DemoMVC.Data;
 using DemoMVC.Models;
+using DemoMVC.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 
 namespace DemoMVC.Controllers
@@ -15,173 +16,252 @@ namespace DemoMVC.Controllers
     public class ProductsController : Controller
     {
         private readonly AppDbContext _context;
+        private readonly IWebHostEnvironment _env;
 
-        public ProductsController(AppDbContext context)
+        public ProductsController(AppDbContext context, IWebHostEnvironment env)
         {
             _context = context;
+            _env = env;
         }
 
         // GET: Products
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(
+            string? searchQuery,
+            string? sortBy,
+            int? supplierId)
         {
-            var products = await _context.Products
+            var isManagerOrAdmin = User.IsInRole("Менеджер") || User.IsInRole("Администратор");
+
+            var query = _context.Products
                 .Include(p => p.Category)
                 .Include(p => p.Manufacturer)
                 .Include(p => p.Supplier)
+                .AsQueryable();
+
+            // Поиск (только для менеджера и администратора)
+            if (isManagerOrAdmin && !string.IsNullOrWhiteSpace(searchQuery))
+            {
+                var s = searchQuery.ToLower();
+                query = query.Where(p =>
+                    p.Name.ToLower().Contains(s) ||
+                    p.Article.ToLower().Contains(s) ||
+                    (p.Description != null && p.Description.ToLower().Contains(s)) ||
+                    p.Category.Name.ToLower().Contains(s) ||
+                    p.Supplier.Name.ToLower().Contains(s) ||
+                    p.Manufacturer.Name.ToLower().Contains(s));
+            }
+
+            // Фильтрация по поставщику
+            if (isManagerOrAdmin && supplierId.HasValue && supplierId.Value > 0)
+            {
+                query = query.Where(p => p.SupplierId == supplierId.Value);
+            }
+
+            // Сортировка
+            if (isManagerOrAdmin)
+            {
+                query = sortBy switch
+                {
+                    "price_asc"  => query.OrderBy(p => p.Price),
+                    "price_desc" => query.OrderByDescending(p => p.Price),
+                    "qty_asc"    => query.OrderBy(p => p.Quantity),
+                    "qty_desc"   => query.OrderByDescending(p => p.Quantity),
+                    _            => query.OrderBy(p => p.Id)
+                };
+            }
+
+            var suppliers = await _context.Suppliers
+                .Select(s => new SelectListItem { Value = s.Id.ToString(), Text = s.Name })
                 .ToListAsync();
+            suppliers.Insert(0, new SelectListItem { Value = "", Text = "Все поставщики" });
 
-            return View(products);
+            var vm = new ProductFilterViewModel
+            {
+                Products    = await query.ToListAsync(),
+                SearchQuery = searchQuery,
+                SortBy      = sortBy,
+                SupplierId  = supplierId,
+                Suppliers   = suppliers
+            };
+
+            return View(vm);
         }
 
-        // GET: Products/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null || _context.Products == null)
-            {
-                return NotFound();
-            }
-
-            var product = await _context.Products
-                .Include(p => p.Category)
-                .Include(p => p.Manufacturer)
-                .Include(p => p.Supplier)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (product == null)
-            {
-                return NotFound();
-            }
-
-            return View(product);
-        }
-
-        // GET: Products/Create
+        // GET: Products/Create  (только Администратор)
+        [Authorize(Roles = "Администратор")]
         public IActionResult Create()
         {
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Id");
-            ViewData["ManufacturerId"] = new SelectList(_context.Manufacturers, "Id", "Id");
-            ViewData["SupplierId"] = new SelectList(_context.Suppliers, "Id", "Id");
-            return View();
+            PopulateDropdowns();
+            return View(new Product());
         }
 
         // POST: Products/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Article,Name,Description,UnitOfMeasure,Price,Quantity,Discount,ImagePath,CategoryId,SupplierId,ManufacturerId")] Product product)
+        [Authorize(Roles = "Администратор")]
+        public async Task<IActionResult> Create(
+            [Bind("Article,Name,Description,UnitOfMeasure,Price,Quantity,Discount,CategoryId,SupplierId,ManufacturerId")] Product product,
+            IFormFile? imageFile)
         {
+            // Валидация цены и количества
+            if (product.Price < 0)
+                ModelState.AddModelError("Price", "Цена не может быть отрицательной.");
+            if (product.Quantity < 0)
+                ModelState.AddModelError("Quantity", "Количество не может быть отрицательным.");
+
             if (ModelState.IsValid)
             {
+                // Автовычисление ID
+                product.Id = (_context.Products.Any() ? _context.Products.Max(p => p.Id) : 0) + 1;
+
+                // Обработка изображения
+                if (imageFile != null && imageFile.Length > 0)
+                {
+                    product.ImagePath = await SaveImageAsync(imageFile, null);
+                }
+
                 _context.Add(product);
                 await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Товар успешно добавлен.";
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Id", product.CategoryId);
-            ViewData["ManufacturerId"] = new SelectList(_context.Manufacturers, "Id", "Id", product.ManufacturerId);
-            ViewData["SupplierId"] = new SelectList(_context.Suppliers, "Id", "Id", product.SupplierId);
+
+            PopulateDropdowns(product);
             return View(product);
         }
 
         // GET: Products/Edit/5
+        [Authorize(Roles = "Администратор")]
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null || _context.Products == null)
-            {
+            if (id == null)
                 return NotFound();
-            }
 
             var product = await _context.Products.FindAsync(id);
             if (product == null)
-            {
                 return NotFound();
-            }
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Id", product.CategoryId);
-            ViewData["ManufacturerId"] = new SelectList(_context.Manufacturers, "Id", "Id", product.ManufacturerId);
-            ViewData["SupplierId"] = new SelectList(_context.Suppliers, "Id", "Id", product.SupplierId);
+
+            PopulateDropdowns(product);
             return View(product);
         }
 
         // POST: Products/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Article,Name,Description,UnitOfMeasure,Price,Quantity,Discount,ImagePath,CategoryId,SupplierId,ManufacturerId")] Product product)
+        [Authorize(Roles = "Администратор")]
+        public async Task<IActionResult> Edit(
+            int id,
+            [Bind("Id,Article,Name,Description,UnitOfMeasure,Price,Quantity,Discount,ImagePath,CategoryId,SupplierId,ManufacturerId")] Product product,
+            IFormFile? imageFile)
         {
             if (id != product.Id)
-            {
                 return NotFound();
-            }
+
+            if (product.Price < 0)
+                ModelState.AddModelError("Price", "Цена не может быть отрицательной.");
+            if (product.Quantity < 0)
+                ModelState.AddModelError("Quantity", "Количество не может быть отрицательным.");
 
             if (ModelState.IsValid)
             {
                 try
                 {
+                    // Обновление изображения
+                    if (imageFile != null && imageFile.Length > 0)
+                    {
+                        // Удаляем старое фото
+                        var oldPath = product.ImagePath;
+                        product.ImagePath = await SaveImageAsync(imageFile, oldPath);
+                    }
+
                     _context.Update(product);
                     await _context.SaveChangesAsync();
+                    TempData["SuccessMessage"] = "Товар успешно обновлён.";
                 }
                 catch (DbUpdateConcurrencyException)
                 {
                     if (!ProductExists(product.Id))
-                    {
                         return NotFound();
-                    }
                     else
-                    {
                         throw;
-                    }
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Id", product.CategoryId);
-            ViewData["ManufacturerId"] = new SelectList(_context.Manufacturers, "Id", "Id", product.ManufacturerId);
-            ViewData["SupplierId"] = new SelectList(_context.Suppliers, "Id", "Id", product.SupplierId);
-            return View(product);
-        }
 
-        // GET: Products/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null || _context.Products == null)
-            {
-                return NotFound();
-            }
-
-            var product = await _context.Products
-                .Include(p => p.Category)
-                .Include(p => p.Manufacturer)
-                .Include(p => p.Supplier)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (product == null)
-            {
-                return NotFound();
-            }
-
+            PopulateDropdowns(product);
             return View(product);
         }
 
         // POST: Products/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Администратор")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            if (_context.Products == null)
-            {
-                return Problem("Entity set 'AppDbContext.Products'  is null.");
-            }
             var product = await _context.Products.FindAsync(id);
-            if (product != null)
+            if (product == null)
+                return NotFound();
+
+            // Проверяем, нет ли товара в заказах
+            bool inOrder = await _context.OrderItems.AnyAsync(oi => oi.ProductId == id);
+            if (inOrder)
             {
-                _context.Products.Remove(product);
+                TempData["ErrorMessage"] = "Нельзя удалить товар, который присутствует в заказе.";
+                return RedirectToAction(nameof(Index));
             }
-            
+
+            // Удаляем фото с диска
+            if (!string.IsNullOrEmpty(product.ImagePath))
+            {
+                var filePath = Path.Combine(_env.WebRootPath, "img", "products", product.ImagePath);
+                if (System.IO.File.Exists(filePath))
+                    System.IO.File.Delete(filePath);
+            }
+
+            _context.Products.Remove(product);
             await _context.SaveChangesAsync();
+            TempData["SuccessMessage"] = "Товар успешно удалён.";
             return RedirectToAction(nameof(Index));
         }
 
-        private bool ProductExists(int id)
+        // ─── Вспомогательные методы ──────────────────────────────────────────
+
+        private bool ProductExists(int id) =>
+            _context.Products?.Any(e => e.Id == id) ?? false;
+
+        private void PopulateDropdowns(Product? product = null)
         {
-          return (_context.Products?.Any(e => e.Id == id)).GetValueOrDefault();
+            ViewData["CategoryId"]     = new SelectList(_context.Categories, "Id", "Name", product?.CategoryId);
+            ViewData["ManufacturerId"] = new SelectList(_context.Manufacturers, "Id", "Name", product?.ManufacturerId);
+            ViewData["SupplierId"]     = new SelectList(_context.Suppliers, "Id", "Name", product?.SupplierId);
+        }
+
+        /// <summary>
+        /// Сохраняет загруженное изображение в wwwroot/img/products,
+        /// масштабирует до 300x200, удаляет старый файл.
+        /// Возвращает имя нового файла.
+        /// </summary>
+        private async Task<string> SaveImageAsync(IFormFile imageFile, string? oldFileName)
+        {
+            var uploadsFolder = Path.Combine(_env.WebRootPath, "img", "products");
+            Directory.CreateDirectory(uploadsFolder);
+
+            // Удаляем старое фото
+            if (!string.IsNullOrEmpty(oldFileName))
+            {
+                var oldFilePath = Path.Combine(uploadsFolder, oldFileName);
+                if (System.IO.File.Exists(oldFilePath))
+                    System.IO.File.Delete(oldFilePath);
+            }
+
+            var newFileName = Guid.NewGuid().ToString() + Path.GetExtension(imageFile.FileName);
+            var newFilePath = Path.Combine(uploadsFolder, newFileName);
+
+            // Сохраняем файл как есть (масштабирование требует дополнительной библиотеки)
+            using var stream = new FileStream(newFilePath, FileMode.Create);
+            await imageFile.CopyToAsync(stream);
+
+            return newFileName;
         }
     }
 }

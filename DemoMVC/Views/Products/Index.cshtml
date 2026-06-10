@@ -1,44 +1,101 @@
-@model IEnumerable<DemoMVC.Models.Product>
+@model DemoMVC.ViewModels.ProductFilterViewModel
 
 @{
     ViewData["Title"] = "Список товаров";
+    var isManagerOrAdmin = User.IsInRole("Менеджер") || User.IsInRole("Администратор");
+    var isAdmin = User.IsInRole("Администратор");
 }
 
 <h2>Список товаров</h2>
 
+@* Сообщения об успехе/ошибке *@
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible">
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        @TempData["SuccessMessage"]
+    </div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible">
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+@* Панель поиска, сортировки и фильтрации — только для менеджера и администратора *@
+@if (isManagerOrAdmin)
+{
+    <div class="row g-2 mb-3" id="filterPanel">
+        <div class="col-md-4">
+            <input type="text" id="searchInput" class="form-control"
+                   placeholder="Поиск по названию, артикулу, категории..."
+                   value="@Model.SearchQuery" />
+        </div>
+        <div class="col-md-3">
+            <select id="supplierFilter" class="form-select">
+                @foreach (var s in Model.Suppliers)
+                {
+                    if (s.Value == (Model.SupplierId?.ToString() ?? ""))
+                    {
+                        <option value="@s.Value" selected>@s.Text</option>
+                    }
+                    else
+                    {
+                        <option value="@s.Value">@s.Text</option>
+                    }
+                }
+            </select>
+        </div>
+        <div class="col-md-3">
+            <select id="sortSelect" class="form-select">
+                <option value="" @(string.IsNullOrEmpty(Model.SortBy) ? "selected" : "")>— Сортировка —</option>
+                <option value="price_asc" @(Model.SortBy == "price_asc" ? "selected" : "")>Цена ↑</option>
+                <option value="price_desc" @(Model.SortBy == "price_desc" ? "selected" : "")>Цена ↓</option>
+                <option value="qty_asc" @(Model.SortBy == "qty_asc" ? "selected" : "")>Кол-во ↑</option>
+                <option value="qty_desc" @(Model.SortBy == "qty_desc" ? "selected" : "")>Кол-во ↓</option>
+            </select>
+        </div>
+        @if (isAdmin)
+        {
+            <div class="col-md-2">
+                <a asp-action="Create" class="btn btn-success w-100">+ Добавить товар</a>
+            </div>
+        }
+    </div>
+}
+
 <div class="product-list">
-    @foreach (var item in Model)
+    @foreach (var item in Model.Products)
     {
         var hasDiscount = item.Discount > 0;
         var bigDiscount = item.Discount > 17;
-        var outOfStock = item.Quantity <= 0;
+        var outOfStock  = item.Quantity <= 0;
 
         var cardClass = "product-card";
         if (outOfStock)
-        {
-            cardClass += " product-card-outofstock";   // голубой фон
-        }
+            cardClass += " product-card-outofstock";
         else if (bigDiscount)
-        {
-            cardClass += " product-card-bigdicount";   // #FFDEAD
-        }
+            cardClass += " product-card-bigdiscount";
 
         <div class="@cardClass">
             <div class="product-photo">
                 @{
                     var imgPath = string.IsNullOrEmpty(item.ImagePath)
-                        ? Url.Content("~/img/picture.png")   // заглушка
+                        ? Url.Content("~/img/picture.png")
                         : Url.Content("~/img/products/" + item.ImagePath);
                 }
                 <img src="@imgPath"
                      alt="Фото товара"
-                     onerror="this.onerror=null; this.src='@Url.Content("~/img/picture.png")';" />
+                     onerror="this.onerror=null;this.src='@Url.Content("~/img/picture.png")';" />
             </div>
 
             <div class="product-info">
                 <div class="product-header">
                     <span class="product-category">@item.Category?.Name</span>
-                    <span class="product-name">@item.Name</span>
+                    <span class="product-separator"> | </span>
+                    <span class="product-name fw-bold">@item.Name</span>
                 </div>
                 <div>Описание: @item.Description</div>
                 <div>Производитель: @item.Manufacturer?.Name</div>
@@ -46,27 +103,80 @@
                 <div>Единица измерения: @item.UnitOfMeasure</div>
                 <div>Количество на складе: @item.Quantity</div>
 
-                <div class="product-price">
+                <div class="product-price mt-1">
                     @if (hasDiscount)
                     {
-                        <span class="old-price">@item.Price.ToString("0.00") ₽</span>
-                        <span class="new-price">
-                            @{
-                                var newPrice = item.Price * (1 - item.Discount / 100m);
-                            }
-                            @newPrice.ToString("0.00") ₽
-                        </span>
+                        var newPrice = item.Price * (1 - item.Discount / 100m);
+                        <span class="old-price text-danger text-decoration-line-through me-1">@item.Price.ToString("0.00") ₽</span>
+                        <span class="new-price text-dark fw-semibold">@newPrice.ToString("0.00") ₽</span>
                     }
                     else
                     {
-                        <span class="new-price">@item.Price.ToString("0.00") ₽</span>
+                        <span class="new-price fw-semibold">@item.Price.ToString("0.00") ₽</span>
                     }
                 </div>
+
+                @* Кнопки редактирования и удаления — только для администратора *@
+                @if (isAdmin)
+                {
+                    <div class="mt-2 d-flex gap-2">
+                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">✏️ Редактировать</a>
+                        <form asp-action="Delete" asp-route-id="@item.Id" method="post"
+                              onsubmit="return confirmDelete('@item.Name')">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-sm btn-outline-danger">🗑 Удалить</button>
+                        </form>
+                    </div>
+                }
             </div>
 
-            <div class="product-discount">
-                <span>@item.Discount %</span>
+            <div class="product-discount text-center">
+                @if (item.Discount > 0)
+                {
+                    <span class="badge bg-warning text-dark">-@item.Discount %</span>
+                }
             </div>
         </div>
     }
+
+    @if (!Model.Products.Any())
+    {
+        <div class="text-center text-muted py-5">
+            <p>Товары не найдены. Попробуйте изменить параметры поиска или фильтрации.</p>
+        </div>
+    }
 </div>
+
+@section Scripts {
+    <script>
+        // Реальновременной поиск, фильтрация и сортировка без кнопки
+        let searchTimeout = null;
+
+        function applyFilters() {
+            const search   = document.getElementById('searchInput')?.value ?? '';
+            const supplier = document.getElementById('supplierFilter')?.value ?? '';
+            const sort     = document.getElementById('sortSelect')?.value ?? '';
+
+            const params = new URLSearchParams();
+            if (search)   params.set('searchQuery', search);
+            if (supplier) params.set('supplierId', supplier);
+            if (sort)     params.set('sortBy', sort);
+
+            window.location.href = '/Products/Index?' + params.toString();
+        }
+
+        // Поиск с задержкой 400ms (чтобы не делать запрос на каждую букву)
+        document.getElementById('searchInput')?.addEventListener('input', function () {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(applyFilters, 400);
+        });
+
+        // Фильтр и сортировка срабатывают сразу при изменении
+        document.getElementById('supplierFilter')?.addEventListener('change', applyFilters);
+        document.getElementById('sortSelect')?.addEventListener('change', applyFilters);
+
+        function confirmDelete(name) {
+            return confirm('Вы уверены, что хотите удалить товар "' + name + '"? Это действие необратимо.');
+        }
+    </script>
+}
