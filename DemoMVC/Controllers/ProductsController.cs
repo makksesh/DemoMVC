@@ -104,7 +104,6 @@ namespace DemoMVC.Controllers
             [Bind("Article,Name,Description,MeasurementId,Price,Quantity,Discount,CategoryId,SupplierId,ManufacturerId")] Product product,
             IFormFile? imageFile)
         {
-            // Валидация цены и количества
             if (product.Price < 0)
                 ModelState.AddModelError("Price", "Цена не может быть отрицательной.");
             if (product.Quantity < 0)
@@ -112,27 +111,18 @@ namespace DemoMVC.Controllers
 
             if (ModelState.IsValid)
             {
-                // Автовычисление ID
-                product.Id = (_context.Products.Any() ? _context.Products.Max(p => p.Id) : 0) + 1;
+                // Id генерируется автоматически через IDENTITY — не задаём вручную
 
-                // Обработка изображения
                 if (imageFile != null && imageFile.Length > 0)
-                {
                     product.ImagePath = await SaveImageAsync(imageFile, null);
-                }
 
                 _context.Add(product);
                 await _context.SaveChangesAsync();
                 TempData["SuccessMessage"] = "Товар успешно добавлен.";
                 return RedirectToAction(nameof(Index));
             }
-            else
-            {
-                var errors = ModelState
-                    .Where(x => x.Value?.Errors.Count > 0)
-                    .Select(x => $"{x.Key}: {string.Join(", ", x.Value!.Errors.Select(e => e.ErrorMessage))}");
-                TempData["ErrorMessage"] = string.Join(" | ", errors);
-            }
+
+            // Возвращаем форму с ошибками — asp-validation-summary покажет их на странице Create
             PopulateDropdowns(product);
             return View(product);
         }
@@ -173,12 +163,10 @@ namespace DemoMVC.Controllers
             {
                 try
                 {
-                    // Обновление изображения
                     if (imageFile != null && imageFile.Length > 0)
                     {
-                        // Удаляем старое фото
-                        var oldPath = product.ImagePath;
-                        product.ImagePath = await SaveImageAsync(imageFile, oldPath);
+                        // Удаляем старое фото и сохраняем новое
+                        product.ImagePath = await SaveImageAsync(imageFile, product.ImagePath);
                     }
 
                     _context.Update(product);
@@ -209,7 +197,6 @@ namespace DemoMVC.Controllers
             if (product == null)
                 return NotFound();
 
-            // Проверяем, нет ли товара в заказах
             bool inOrder = await _context.OrderItems.AnyAsync(oi => oi.ProductId == id);
             if (inOrder)
             {
@@ -217,7 +204,6 @@ namespace DemoMVC.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            // Удаляем фото с диска
             if (!string.IsNullOrEmpty(product.ImagePath))
             {
                 var filePath = Path.Combine(_env.WebRootPath, "img", "products", product.ImagePath);
@@ -241,20 +227,18 @@ namespace DemoMVC.Controllers
             ViewData["CategoryId"]     = new SelectList(_context.Categories, "Id", "Name", product?.CategoryId);
             ViewData["ManufacturerId"] = new SelectList(_context.Manufacturers, "Id", "Name", product?.ManufacturerId);
             ViewData["SupplierId"]     = new SelectList(_context.Suppliers, "Id", "Name", product?.SupplierId);
-            ViewData["UnitOfMeasure"] = new SelectList(_context.Measurements, "Id", "Name", product?.MeasurementId);
+            ViewData["UnitOfMeasure"]  = new SelectList(_context.Measurements, "Id", "Name", product?.MeasurementId);
         }
 
         /// <summary>
         /// Сохраняет загруженное изображение в wwwroot/img/products,
-        /// масштабирует до 300x200, удаляет старый файл.
-        /// Возвращает имя нового файла.
+        /// удаляет старый файл если он был. Возвращает имя нового файла.
         /// </summary>
         private async Task<string> SaveImageAsync(IFormFile imageFile, string? oldFileName)
         {
             var uploadsFolder = Path.Combine(_env.WebRootPath, "img", "products");
             Directory.CreateDirectory(uploadsFolder);
 
-            // Удаляем старое фото
             if (!string.IsNullOrEmpty(oldFileName))
             {
                 var oldFilePath = Path.Combine(uploadsFolder, oldFileName);
@@ -265,7 +249,6 @@ namespace DemoMVC.Controllers
             var newFileName = Guid.NewGuid().ToString() + Path.GetExtension(imageFile.FileName);
             var newFilePath = Path.Combine(uploadsFolder, newFileName);
 
-            // Сохраняем файл как есть (масштабирование требует дополнительной библиотеки)
             using var stream = new FileStream(newFilePath, FileMode.Create);
             await imageFile.CopyToAsync(stream);
 
