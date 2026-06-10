@@ -24,7 +24,7 @@ namespace DemoMVC.Models
         public int CategoryId { get; set; }
         public int SupplierId { get; set; }
         public int ManufacturerId { get; set; }
-        public int UnitOfMeasureId { get; set; }
+        public int MeasurementId { get; set; }
 
         // Навигационные свойства
         public Category Category { get; set; } = null!;

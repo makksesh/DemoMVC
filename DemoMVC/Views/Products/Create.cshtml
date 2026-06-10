@@ -64,28 +64,26 @@
             </div>
             <div class="mb-3">
                 <label asp-for="Price" class="form-label fw-semibold">Цена (₽)</label>
-                <input asp-for="Price" class="form-control" type="number" step="0.01" min="0"
+                <input asp-for="Price" class="form-control"
                        placeholder="0.00" />
                 <span asp-validation-for="Price" class="text-danger small"></span>
-                <div class="form-text">Цена не может быть отрицательной.</div>
             </div>
             <div class="mb-3">
-                <label asp-for="UnitOfMeasure" class="form-label fw-semibold">Единица измерения</label>
-                <select asp-for="UnitOfMeasure" class="form-select" asp-items="ViewBag.UnitOfMeasure">
+                <label asp-for="MeasurementId" class="form-label fw-semibold">Единица измерения</label>
+                <select asp-for="MeasurementId" class="form-select" asp-items="ViewBag.UnitOfMeasure">
                     <option value="">— Выберите единицу измерения —</option>
                 </select>
-                <span asp-validation-for="UnitOfMeasureId" class="text-danger small"></span>
+                <span asp-validation-for="MeasurementId" class="text-danger small"></span>
             </div>
             <div class="mb-3">
                 <label asp-for="Quantity" class="form-label fw-semibold">Количество на складе</label>
-                <input asp-for="Quantity" class="form-control" type="number" min="0"
+                <input asp-for="Quantity" class="form-control"
                        placeholder="0" />
                 <span asp-validation-for="Quantity" class="text-danger small"></span>
-                <div class="form-text">Количество не может быть отрицательным.</div>
             </div>
             <div class="mb-3">
                 <label asp-for="Discount" class="form-label">Скидка (%)</label>
-                <input asp-for="Discount" class="form-control" type="number" step="0.01" min="0" max="100"
+                <input asp-for="Discount" class="form-control"
                        placeholder="0" />
                 <span asp-validation-for="Discount" class="text-danger small"></span>
             </div>

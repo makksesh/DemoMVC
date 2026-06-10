@@ -101,7 +101,7 @@ namespace DemoMVC.Controllers
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Администратор")]
         public async Task<IActionResult> Create(
-            [Bind("Article,Name,Description,UnitOfMeasure,Price,Quantity,Discount,CategoryId,SupplierId,ManufacturerId")] Product product,
+            [Bind("Article,Name,Description,MeasurementId,Price,Quantity,Discount,CategoryId,SupplierId,ManufacturerId")] Product product,
             IFormFile? imageFile)
         {
             // Валидация цены и количества
@@ -126,7 +126,13 @@ namespace DemoMVC.Controllers
                 TempData["SuccessMessage"] = "Товар успешно добавлен.";
                 return RedirectToAction(nameof(Index));
             }
-
+            else
+            {
+                var errors = ModelState
+                    .Where(x => x.Value?.Errors.Count > 0)
+                    .Select(x => $"{x.Key}: {string.Join(", ", x.Value!.Errors.Select(e => e.ErrorMessage))}");
+                TempData["ErrorMessage"] = string.Join(" | ", errors);
+            }
             PopulateDropdowns(product);
             return View(product);
         }
@@ -152,7 +158,7 @@ namespace DemoMVC.Controllers
         [Authorize(Roles = "Администратор")]
         public async Task<IActionResult> Edit(
             int id,
-            [Bind("Id,Article,Name,Description,UnitOfMeasure,Price,Quantity,Discount,ImagePath,CategoryId,SupplierId,ManufacturerId")] Product product,
+            [Bind("Id,Article,Name,Description,MeasurementId,Price,Quantity,Discount,ImagePath,CategoryId,SupplierId,ManufacturerId")] Product product,
             IFormFile? imageFile)
         {
             if (id != product.Id)
@@ -235,7 +241,7 @@ namespace DemoMVC.Controllers
             ViewData["CategoryId"]     = new SelectList(_context.Categories, "Id", "Name", product?.CategoryId);
             ViewData["ManufacturerId"] = new SelectList(_context.Manufacturers, "Id", "Name", product?.ManufacturerId);
             ViewData["SupplierId"]     = new SelectList(_context.Suppliers, "Id", "Name", product?.SupplierId);
-            ViewData["UnitOfMeasure"] = new SelectList(_context.Measurements, "Id", "Name", product?.UnitOfMeasure?.Id);
+            ViewData["UnitOfMeasure"] = new SelectList(_context.Measurements, "Id", "Name", product?.MeasurementId);
         }
 
         /// <summary>
