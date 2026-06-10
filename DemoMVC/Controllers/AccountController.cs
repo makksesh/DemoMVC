@@ -1,4 +1,4 @@
-﻿using DemoMVC.Data;
+using DemoMVC.Data;
 using DemoMVC.ViewModels;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -12,75 +12,61 @@ namespace DemoMVC.Controllers
     {
         private readonly AppDbContext _db;
 
-        public AccountController(AppDbContext db)
-        {
-            _db = db;
-        }
+        public AccountController(AppDbContext db) => _db = db;
 
         [HttpGet]
         public IActionResult Login(string? returnUrl = null)
-        {
-            var model = new LoginViewModel { ReturnUrl = returnUrl };
-            return View(model);
-        }
+            => View(new LoginViewModel { ReturnUrl = returnUrl });
 
         [HttpPost]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
             if (!ModelState.IsValid)
-            {
                 return View(model);
-            }
 
+            // Ищем пользователя с совпадающим логином и паролем
             var user = await _db.Users
                 .Include(u => u.Role)
                 .FirstOrDefaultAsync(u => u.Login == model.Login && u.Password == model.Password);
 
             if (user is null)
             {
-                ModelState.AddModelError("", "Неверный логин или пароль");
+                ModelState.AddModelError("", "Неверный логин или пароль.");
                 return View(model);
             }
 
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Name, user.Name),
-                new Claim(ClaimTypes.Role, user.Role.Name),
-
+                new(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new(ClaimTypes.Name,           user.Name),
+                new(ClaimTypes.Role,           user.Role.Name),
             };
 
-            var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            var identity   = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            var principal  = new ClaimsPrincipal(identity);
+            var properties = new AuthenticationProperties { IsPersistent = model.RememberMe };
 
-            var authProperties = new AuthenticationProperties
-            {
-                IsPersistent = model.RememberMe
-            };
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal, properties);
 
-            await HttpContext.SignInAsync(
-                CookieAuthenticationDefaults.AuthenticationScheme,
-                new ClaimsPrincipal(identity),
-                authProperties);
-
+            // Редирект на исходную страницу или на список товаров
             if (!string.IsNullOrEmpty(model.ReturnUrl) && Url.IsLocalUrl(model.ReturnUrl))
                 return Redirect(model.ReturnUrl);
 
             return RedirectToAction("Index", "Products");
         }
 
+        // Вход без регистрации — роль «Гость»
         [HttpGet]
         public async Task<IActionResult> Guest()
         {
             var claims = new List<Claim>
-        {
-            new Claim(ClaimTypes.Name, "Гость"),
-            new Claim(ClaimTypes.Role, "Гость")
-        };
+            {
+                new(ClaimTypes.Name, "Гость"),
+                new(ClaimTypes.Role, "Гость"),
+            };
 
             var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-            await HttpContext.SignInAsync(
-                CookieAuthenticationDefaults.AuthenticationScheme,
-                new ClaimsPrincipal(identity));
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(identity));
 
             return RedirectToAction("Index", "Products");
         }
@@ -93,9 +79,6 @@ namespace DemoMVC.Controllers
         }
 
         [HttpGet]
-        public IActionResult AccessDenied()
-        {
-            return View();
-        }
+        public IActionResult AccessDenied() => View();
     }
 }
