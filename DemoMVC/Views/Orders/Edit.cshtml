@@ -1,0 +1,67 @@
+@model DemoMVC.Models.Order
+
+@{
+    ViewData["Title"] = "Редактировать заказ";
+}
+
+<h2>Редактировать заказ</h2>
+<hr />
+
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="UserId" />
+
+            <div class="mb-3">
+                <label class="form-label fw-semibold">ИД заказа</label>
+                <input value="@Model.Id" class="form-control" readonly />
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Code" class="form-label fw-semibold">Артикул</label>
+                <input asp-for="Code" class="form-control" />
+                <span asp-validation-for="Code" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="OrderStatusId" class="form-label fw-semibold">Статус заказа</label>
+                <select asp-for="OrderStatusId" class="form-select" asp-items="ViewBag.OrderStatusId">
+                    <option value="">— Выберите статус —</option>
+                </select>
+                <span asp-validation-for="OrderStatusId" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="PickupPointId" class="form-label fw-semibold">Адрес пункта выдачи</label>
+                <select asp-for="PickupPointId" class="form-select" asp-items="ViewBag.PickupPointId">
+                    <option value="">— Выберите пункт выдачи —</option>
+                </select>
+                <span asp-validation-for="PickupPointId" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="CreatedAt" class="form-label fw-semibold">Дата заказа</label>
+                <input asp-for="CreatedAt" type="date" class="form-control" />
+                <span asp-validation-for="CreatedAt" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="DeliveryDate" class="form-label">Дата выдачи</label>
+                <input asp-for="DeliveryDate" type="date" class="form-control" />
+                <span asp-validation-for="DeliveryDate" class="text-danger small"></span>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">💾 Сохранить</button>
+                <a asp-action="Index" class="btn btn-secondary">← Назад к заказам</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}
