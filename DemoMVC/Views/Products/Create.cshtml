@@ -71,8 +71,10 @@
             </div>
             <div class="mb-3">
                 <label asp-for="UnitOfMeasure" class="form-label fw-semibold">Единица измерения</label>
-                <input asp-for="UnitOfMeasure" class="form-control" placeholder="шт., кг., упак." />
-                <span asp-validation-for="UnitOfMeasure" class="text-danger small"></span>
+                <select asp-for="UnitOfMeasure" class="form-select" asp-items="ViewBag.UnitOfMeasure">
+                    <option value="">— Выберите единицу измерения —</option>
+                </select>
+                <span asp-validation-for="UnitOfMeasureId" class="text-danger small"></span>
             </div>
             <div class="mb-3">
                 <label asp-for="Quantity" class="form-label fw-semibold">Количество на складе</label>

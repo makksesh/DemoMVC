@@ -20,6 +20,6 @@ namespace DemoMVC.Data
         public DbSet<OrderItem> OrderItems { get; set; } = null!;
         public DbSet<OrderStatus> OrderStatuses { get; set; } = null!;
         public DbSet<PickupPoint> PickupPoints { get; set; } = null!;
-
+        public DbSet<Measurement> Measurements { get; set; } = null!;
     }
 }

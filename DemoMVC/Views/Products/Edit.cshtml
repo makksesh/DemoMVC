@@ -76,7 +76,7 @@
             </div>
             <div class="mb-3">
                 <label asp-for="UnitOfMeasure" class="form-label fw-semibold">Единица измерения</label>
-                <input asp-for="UnitOfMeasure" class="form-control" />
+                <select asp-for="UnitOfMeasure" class="form-select" asp-items="ViewBag.UnitOfMeasure"></select>
                 <span asp-validation-for="UnitOfMeasure" class="text-danger small"></span>
             </div>
             <div class="mb-3">

@@ -36,6 +36,7 @@ namespace DemoMVC.Controllers
                 .Include(p => p.Category)
                 .Include(p => p.Manufacturer)
                 .Include(p => p.Supplier)
+                .Include(p => p.UnitOfMeasure)
                 .AsQueryable();
 
             // Поиск (только для менеджера и администратора)
@@ -234,6 +235,7 @@ namespace DemoMVC.Controllers
             ViewData["CategoryId"]     = new SelectList(_context.Categories, "Id", "Name", product?.CategoryId);
             ViewData["ManufacturerId"] = new SelectList(_context.Manufacturers, "Id", "Name", product?.ManufacturerId);
             ViewData["SupplierId"]     = new SelectList(_context.Suppliers, "Id", "Name", product?.SupplierId);
+            ViewData["UnitOfMeasure"] = new SelectList(_context.Measurements, "Id", "Name", product?.UnitOfMeasure?.Id);
         }
 
         /// <summary>

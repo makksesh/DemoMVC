@@ -11,7 +11,7 @@ namespace DemoMVC.Models
         public string Article { get; set; } = null!;// Артикул из файла
         public string Name { get; set; } = null!;   // Наименование
         public string? Description { get; set; }    // Описание (может быть пустым)
-        public Measurement UnitOfMeasure { get; set; } = null!; // Ед. изм.
+
 
         [Precision(18,2)]
         public decimal Price { get; set; }          // Цена с копейками
@@ -24,10 +24,12 @@ namespace DemoMVC.Models
         public int CategoryId { get; set; }
         public int SupplierId { get; set; }
         public int ManufacturerId { get; set; }
+        public int UnitOfMeasureId { get; set; }
 
         // Навигационные свойства
         public Category Category { get; set; } = null!;
         public Supplier Supplier { get; set; } = null!;
         public Manufacturer Manufacturer { get; set; } = null!;
+        public Measurement UnitOfMeasure { get; set; } = null!; 
     }
 }
