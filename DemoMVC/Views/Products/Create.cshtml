@@ -70,7 +70,7 @@
             </div>
             <div class="mb-3">
                 <label asp-for="MeasurementId" class="form-label fw-semibold">Единица измерения</label>
-                <select asp-for="MeasurementId" class="form-select" asp-items="ViewBag.UnitOfMeasure">
+                <select asp-for="MeasurementId" class="form-select" asp-items="ViewBag.Measurement">
                     <option value="">— Выберите единицу измерения —</option>
                 </select>
                 <span asp-validation-for="MeasurementId" class="text-danger small"></span>

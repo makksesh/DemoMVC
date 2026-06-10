@@ -33,7 +33,7 @@ namespace DemoMVC.Controllers
                 .Include(p => p.Category)
                 .Include(p => p.Manufacturer)
                 .Include(p => p.Supplier)
-                .Include(p => p.UnitOfMeasure)
+                .Include(p => p.Measurement)
                 .AsQueryable();
 
             // Поиск, фильтр и сортировка — только для менеджера/администратора
@@ -82,8 +82,6 @@ namespace DemoMVC.Controllers
             return View(vm);
         }
 
-        // ── Создание товара (только Администратор) ────────────────────────────
-
         [Authorize(Policy = "AdminOnly")]
         public IActionResult Create()
         {
@@ -116,7 +114,6 @@ namespace DemoMVC.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // ── Редактирование товара (только Администратор) ──────────────────────
 
         [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> Edit(int? id)
@@ -167,8 +164,6 @@ namespace DemoMVC.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // ── Удаление товара (только Администратор) ────────────────────────────
-
         [HttpPost, ActionName("Delete"), ValidateAntiForgeryToken]
         [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -203,7 +198,7 @@ namespace DemoMVC.Controllers
             ViewData["CategoryId"]     = new SelectList(_context.Categories,    "Id", "Name", product?.CategoryId);
             ViewData["ManufacturerId"] = new SelectList(_context.Manufacturers, "Id", "Name", product?.ManufacturerId);
             ViewData["SupplierId"]     = new SelectList(_context.Suppliers,     "Id", "Name", product?.SupplierId);
-            ViewData["UnitOfMeasure"]  = new SelectList(_context.Measurements,  "Id", "Name", product?.MeasurementId);
+            ViewData["Measurement"]  = new SelectList(_context.Measurements,  "Id", "Name", product?.MeasurementId);
         }
 
         /// <summary>Добавляет ошибки ModelState если цена или количество отрицательны.</summary>

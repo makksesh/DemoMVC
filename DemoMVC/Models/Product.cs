@@ -31,6 +31,6 @@ namespace DemoMVC.Models
         public Category? Category { get; set; } 
         public Supplier? Supplier { get; set; } 
         public Manufacturer? Manufacturer { get; set; } 
-        public Measurement? UnitOfMeasure { get; set; } 
+        public Measurement? Measurement { get; set; } 
     }
 }

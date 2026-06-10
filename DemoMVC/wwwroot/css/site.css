@@ -1,11 +1,10 @@
 :root {
     --color-bg-main:     #FFFFFF;
-    --color-bg-alt:      #F5DEB3;
+    --color-bg-alt:      #FFFFFF;
     --color-accent:      #DEB887;
     --color-bg-discount: #FFDEAD;
     --font-main:         Arial, sans-serif;
 }
-
 
 html {
     font-size: 14px;

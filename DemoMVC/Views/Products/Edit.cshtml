@@ -75,9 +75,9 @@
                 <div class="form-text">Цена не может быть отрицательной.</div>
             </div>
             <div class="mb-3">
-                <label asp-for="UnitOfMeasure" class="form-label fw-semibold">Единица измерения</label>
-                <select asp-for="UnitOfMeasure" class="form-select" asp-items="ViewBag.UnitOfMeasure"></select>
-                <span asp-validation-for="UnitOfMeasure" class="text-danger small"></span>
+                <label asp-for="MeasurementId" class="form-label fw-semibold">Единица измерения</label>
+                <select asp-for="MeasurementId" class="form-select" asp-items="ViewBag.Measurement"></select>
+                <span asp-validation-for="MeasurementId" class="text-danger small"></span>
             </div>
             <div class="mb-3">
                 <label asp-for="Quantity" class="form-label fw-semibold">Количество на складе</label>
