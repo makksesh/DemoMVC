@@ -1,0 +1,45 @@
+﻿@model DemoMVC.ViewModels.LoginViewModel
+
+@{
+    ViewData["Tittle"] = "Вход";
+}
+
+<h2>Добро пожаловать</h2>
+
+<form asp-action="Login" method="post">
+    <input asp-for="ReturnUrl" type="hidden" />
+
+    <div>
+        <label asp-for="Login"></label>
+        <input asp-for="Login" />
+        <span asp-validation-for="Login" style="color:red"></span>
+    </div>
+
+    <div>
+        <label asp-for="Password"></label>
+        <input asp-for="Password" />
+        <span asp-validation-for="Password" style="color:red"></span>
+    </div>
+
+    <div>
+        <input asp-for="RememberMe" />
+        <label asp-for="RememberMe"></label>
+    </div>
+
+    <button type="submit">Войти</button>
+</form>
+
+<form asp-action="Guest" method="get" style="margin-top:10px">
+    <button type="submit">Войти как гость</button>
+</form>
+
+<div>
+    @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+    {
+        <p style="color:red">@error.ErrorMessage</p>
+    }
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
