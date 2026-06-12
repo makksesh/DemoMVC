@@ -14,7 +14,7 @@
         </div>
         
 
-        @if (ViewData.ModelState.Values.SelectMany(v => v.Errors).Any())
+        @* @if (ViewData.ModelState.Values.SelectMany(v => v.Errors).Any())
         {
             <div class="login-errors">
                 @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
@@ -22,7 +22,8 @@
                     <p>@error.ErrorMessage</p>
                 }
             </div>
-        }
+        } *@
+        <div asp-validation-summary="ModelOnly" class="login-errors"></div>
 
         <form asp-action="Login" method="post">
             <input asp-for="ReturnUrl" type="hidden" />
@@ -35,7 +36,7 @@
 
             <div class="login-field">
                 <label asp-for="Password" class="login-label"></label>
-                <input asp-for="Password" class="login-input" autocomplete="current-password" />
+                <input asp-for="Password" class="login-input" autocomplete="current-password" type="password"/>
                 <span asp-validation-for="Password" class="login-validation"></span>
             </div>
 
@@ -48,10 +49,6 @@
 
     </div>
 </div>
-
-<style>
-    
-</style>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

@@ -1,9 +1,11 @@
+@using Microsoft.AspNetCore.Authorization
 @model DemoMVC.ViewModels.ProductFilterViewModel
+@inject IAuthorizationService AuthService
 
 @{
     ViewData["Title"] = "Список товаров";
-    var isManagerOrAdmin = User.IsInRole("Модератор") || User.IsInRole("Администратор");
-    var isAdmin = User.IsInRole("Администратор");
+    var isManagerOrAdmin = (await AuthService.AuthorizeAsync(User, "StaffOnly")).Succeeded;
+    var isAdmin = (await AuthService.AuthorizeAsync(User, "AdminOnly")).Succeeded;
 
     // Варианты сортировки для выпадающего списка
     var sortOptions = new[]
