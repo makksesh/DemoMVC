@@ -1,4 +1,6 @@
-﻿using System.Data;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Data;
 
 namespace DemoMVC.Models
 {
@@ -7,9 +9,13 @@ namespace DemoMVC.Models
     /// </summary>
     public class Order
     {
+        [Key]
         public int Id { get; set; }
+        [Column(TypeName = "date")]
         public DateTime CreatedAt { get; set; }
+        [Column(TypeName = "date")]
         public DateTime? DeliveryDate { get; set; }
+        [MaxLength(4)]
         public string Code { get; set; } = null!;
         public List<OrderItem> OrderItems { get; set; } = new();
 

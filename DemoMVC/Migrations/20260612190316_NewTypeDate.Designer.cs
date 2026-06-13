@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DemoMVC.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260610082623_AddFieldPickupPoint")]
-    partial class AddFieldPickupPoint
+    [Migration("20260612190316_NewTypeDate")]
+    partial class NewTypeDate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -88,10 +88,10 @@ namespace DemoMVC.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("date");
 
                     b.Property<DateTime?>("DeliveryDate")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("date");
 
                     b.Property<int>("OrderStatusId")
                         .HasColumnType("int");
@@ -171,9 +171,6 @@ namespace DemoMVC.Migrations
                     b.Property<string>("City")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("HouseNumber")
-                        .HasColumnType("int");
 
                     b.Property<string>("PostalCode")
                         .IsRequired()
@@ -359,25 +356,25 @@ namespace DemoMVC.Migrations
             modelBuilder.Entity("DemoMVC.Models.Product", b =>
                 {
                     b.HasOne("DemoMVC.Models.Category", "Category")
-                        .WithMany()
+                        .WithMany("Product")
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("DemoMVC.Models.Manufacturer", "Manufacturer")
-                        .WithMany()
+                        .WithMany("Product")
                         .HasForeignKey("ManufacturerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("DemoMVC.Models.Measurement", "UnitOfMeasure")
-                        .WithMany("ProductId")
+                    b.HasOne("DemoMVC.Models.Measurement", "Measurement")
+                        .WithMany("Product")
                         .HasForeignKey("MeasurementId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("DemoMVC.Models.Supplier", "Supplier")
-                        .WithMany()
+                        .WithMany("Product")
                         .HasForeignKey("SupplierId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -386,9 +383,9 @@ namespace DemoMVC.Migrations
 
                     b.Navigation("Manufacturer");
 
-                    b.Navigation("Supplier");
+                    b.Navigation("Measurement");
 
-                    b.Navigation("UnitOfMeasure");
+                    b.Navigation("Supplier");
                 });
 
             modelBuilder.Entity("DemoMVC.Models.User", b =>
@@ -402,9 +399,19 @@ namespace DemoMVC.Migrations
                     b.Navigation("Role");
                 });
 
+            modelBuilder.Entity("DemoMVC.Models.Category", b =>
+                {
+                    b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("DemoMVC.Models.Manufacturer", b =>
+                {
+                    b.Navigation("Product");
+                });
+
             modelBuilder.Entity("DemoMVC.Models.Measurement", b =>
                 {
-                    b.Navigation("ProductId");
+                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("DemoMVC.Models.Order", b =>
@@ -415,6 +422,11 @@ namespace DemoMVC.Migrations
             modelBuilder.Entity("DemoMVC.Models.Role", b =>
                 {
                     b.Navigation("Users");
+                });
+
+            modelBuilder.Entity("DemoMVC.Models.Supplier", b =>
+                {
+                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("DemoMVC.Models.User", b =>

@@ -2,13 +2,14 @@
 
 @{
     ViewData["Title"] = "Редактировать заказ";
+    bool singleMode = (bool)ViewBag.SingleItemMode;
 }
 
 <h2>Редактировать заказ</h2>
 <hr />
 
 <div class="row">
-    <div class="col-md-6">
+    <div class="col-md-7">
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
 
@@ -16,16 +17,8 @@
             <input type="hidden" asp-for="UserId" />
 
             <div class="mb-3">
-                <label class="form-label fw-semibold">ИД заказа</label>
+                <label class="form-label fw-semibold">ID заказа</label>
                 <input value="@Model.Id" class="form-control" readonly />
-            </div>
-
-            <div class="mb-3">
-                <label asp-for="ProductId" class="form-label fw-semibold">Артикул товара</label>
-                <select asp-for="ProductId" class="form-select" asp-items="ViewBag.ProductId">
-                    <option value="">— Выберите товар —</option>
-                </select>
-                <span asp-validation-for="ProductId" class="text-danger small"></span>
             </div>
 
             <div class="mb-3">
@@ -56,7 +49,52 @@
                 <span asp-validation-for="DeliveryDate" class="text-danger small"></span>
             </div>
 
-            <div class="d-flex gap-2">
+            <h5 class="mt-4 mb-2">Товары в заказе</h5>
+            <div id="items-container">
+                @for (int i = 0; i < Model.Items.Count; i++)
+                {
+                    <div class="row g-2 mb-2 order-item-row">
+                        <input type="hidden" name="Items[@i].Id" value="@Model.Items[i].Id" />
+
+                        <div class="col-7">
+                            <select name="Items[@i].ProductId" class="form-select">
+                                <option value="">— Товар —</option>
+                                @foreach (var p in (SelectList)ViewBag.Products)
+                                {
+                                    <option value="@p.Value" selected="@(p.Value == Model.Items[i].ProductId.ToString())">
+                                        @p.Text
+                                    </option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="col-3">
+                            <input type="number"
+                                   name="Items[@i].Quantity"
+                                   value="@(Model.Items[i].Quantity < 1 ? 1 : Model.Items[i].Quantity)"
+                                   min="1"
+                                   class="form-control"
+                                   placeholder="Кол-во" />
+                        </div>
+
+                        @if (!singleMode)
+                        {
+                            <div class="col-2">
+                                <button type="button" class="btn btn-outline-danger btn-sm w-100 remove-item-btn">✕</button>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+
+            @if (!singleMode)
+            {
+                <button type="button" id="add-item-btn" class="btn btn-outline-secondary btn-sm mb-3">
+                    + Добавить товар
+                </button>
+            }
+
+            <div class="d-flex gap-2 mt-2">
                 <button type="submit" class="btn btn-primary">💾 Сохранить</button>
                 <a asp-action="Index" class="btn btn-secondary">← Назад к заказам</a>
             </div>
@@ -65,5 +103,56 @@
 </div>
 
 @section Scripts {
-    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    @if (!(bool)ViewBag.SingleItemMode)
+    {
+        <script>
+            (function () {
+                const container = document.getElementById('items-container');
+                const addBtn = document.getElementById('add-item-btn');
+
+                function getNextIndex() {
+                    return container.querySelectorAll('.order-item-row').length;
+                }
+
+                addBtn.addEventListener('click', function () {
+                    const idx = getNextIndex();
+                    const firstRow = container.querySelector('.order-item-row');
+
+                    if (!firstRow) return;
+
+                    const newRow = firstRow.cloneNode(true);
+
+                    newRow.querySelectorAll('[name]').forEach(el => {
+                        el.name = el.name.replace(/\[\d+\]/, `[${idx}]`);
+
+                        if (el.tagName === 'SELECT') el.value = '';
+                        if (el.type === 'number') el.value = 1;
+                        if (el.type === 'hidden') el.value = '';
+                    });
+
+                    container.appendChild(newRow);
+                });
+
+                container.addEventListener('click', function (e) {
+                    if (e.target.classList.contains('remove-item-btn')) {
+                        const rows = container.querySelectorAll('.order-item-row');
+
+                        if (rows.length > 1) {
+                            e.target.closest('.order-item-row').remove();
+
+                            container.querySelectorAll('.order-item-row').forEach((row, i) => {
+                                row.querySelectorAll('[name]').forEach(el => {
+                                    el.name = el.name.replace(/\[\d+\]/, `[${i}]`);
+                                });
+                            });
+                        }
+                    }
+                });
+            })();
+        </script>
+    }
 }

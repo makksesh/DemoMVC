@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace DemoMVC.Migrations
 {
-    public partial class Init : Migration
+    public partial class INIT : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -36,7 +36,7 @@ namespace DemoMVC.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Measurement",
+                name: "Measurements",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -45,7 +45,7 @@ namespace DemoMVC.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Measurement", x => x.Id);
+                    table.PrimaryKey("PK_Measurements", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -133,14 +133,14 @@ namespace DemoMVC.Migrations
                     Article = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    UnitOfMeasureId = table.Column<int>(type: "int", nullable: false),
                     Price = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     Quantity = table.Column<int>(type: "int", nullable: false),
                     Discount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     ImagePath = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CategoryId = table.Column<int>(type: "int", nullable: false),
                     SupplierId = table.Column<int>(type: "int", nullable: false),
-                    ManufacturerId = table.Column<int>(type: "int", nullable: false)
+                    ManufacturerId = table.Column<int>(type: "int", nullable: false),
+                    MeasurementId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -158,9 +158,9 @@ namespace DemoMVC.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Products_Measurement_UnitOfMeasureId",
-                        column: x => x.UnitOfMeasureId,
-                        principalTable: "Measurement",
+                        name: "FK_Products_Measurements_MeasurementId",
+                        column: x => x.MeasurementId,
+                        principalTable: "Measurements",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
@@ -214,6 +214,7 @@ namespace DemoMVC.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Quantity = table.Column<int>(type: "int", nullable: false),
+                    Price = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     ProductId = table.Column<int>(type: "int", nullable: false),
                     OrderId = table.Column<int>(type: "int", nullable: false)
                 },
@@ -270,14 +271,14 @@ namespace DemoMVC.Migrations
                 column: "ManufacturerId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Products_MeasurementId",
+                table: "Products",
+                column: "MeasurementId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Products_SupplierId",
                 table: "Products",
                 column: "SupplierId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Products_UnitOfMeasureId",
-                table: "Products",
-                column: "UnitOfMeasureId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Users_Login",
@@ -318,7 +319,7 @@ namespace DemoMVC.Migrations
                 name: "Manufacturers");
 
             migrationBuilder.DropTable(
-                name: "Measurement");
+                name: "Measurements");
 
             migrationBuilder.DropTable(
                 name: "Suppliers");

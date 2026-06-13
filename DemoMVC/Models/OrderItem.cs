@@ -8,6 +8,7 @@ namespace DemoMVC.Models
     /// </summary>
     public class OrderItem
     {
+        [Key]
         public int Id { get; set; }
         public int Quantity { get; set; }
         public int ProductId { get; set; }

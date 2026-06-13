@@ -7,10 +7,11 @@ namespace DemoMVC.Models
     /// </summary>
     public class Role
     {
-        [Display(Name = "Идентификатор роли")]
+        [Key]
         public int Id { get; set; }
-        [Display(Name = "Наименование")]
+        [MaxLength(50)]
         public string Name { get; set; } = null!;
+
         public List<User> Users { get; set; } = new();
     }
 }

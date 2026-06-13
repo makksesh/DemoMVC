@@ -9,18 +9,17 @@ namespace DemoMVC.Models
     [Index(nameof(Login), IsUnique = true)]
     public class User
     {
-        [Display(Name="Идентификатор пользователя")]
+        [Key]
         public int Id { get; set; }
-        [Display(Name = "ФИО")]
+        [MaxLength(100)]
         public string Name { get; set; } = null!;
-        [Display(Name = "Логин")]
+        [MaxLength(50)]
         public string Login { get; set; } = null!;
-        [Display(Name = "Пароль")]
+        [MaxLength(50)]
         public string Password { get; set; } = null!;
-        [Display(Name = "Роль пользователя")]
         public int RoleId { get; set; }
-        public List<Order> Orders { get; set; } = new();
 
+        public List<Order> Orders { get; set; } = new();
         public Role Role { get; set; } = null!;
 
 
