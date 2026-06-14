@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DemoMVC.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260614191346_AddForeignKeys")]
-    partial class AddForeignKeys
+    [Migration("20260614195829_INIT")]
+    partial class INIT
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -41,6 +41,33 @@ namespace DemoMVC.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Categories");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Категория №1"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Категория №2"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "Категория №3"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Name = "Категория №4"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Name = "Категория №5"
+                        });
                 });
 
             modelBuilder.Entity("DemoMVC.Models.Manufacturer", b =>
@@ -59,6 +86,33 @@ namespace DemoMVC.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Manufacturers");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Производитель №1"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Производитель №2"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "Производитель №3"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Name = "Производитель №4"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Name = "Производитель №5"
+                        });
                 });
 
             modelBuilder.Entity("DemoMVC.Models.Measurement", b =>
@@ -77,6 +131,13 @@ namespace DemoMVC.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Measurements");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "шт."
+                        });
                 });
 
             modelBuilder.Entity("DemoMVC.Models.Order", b =>
@@ -160,6 +221,23 @@ namespace DemoMVC.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("OrderStatuses");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Новый"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "В обработке"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "Доставлен"
+                        });
                 });
 
             modelBuilder.Entity("DemoMVC.Models.PickupPoint", b =>
@@ -271,6 +349,23 @@ namespace DemoMVC.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Roles");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Администратор"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Модератор"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "Покупатель"
+                        });
                 });
 
             modelBuilder.Entity("DemoMVC.Models.Supplier", b =>
@@ -289,6 +384,33 @@ namespace DemoMVC.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Suppliers");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Поставщик №1"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Поставщик №2"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "Поставщик №3"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Name = "Поставщик №4"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Name = "Поставщик №5"
+                        });
                 });
 
             modelBuilder.Entity("DemoMVC.Models.User", b =>

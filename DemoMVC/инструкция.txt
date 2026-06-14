@@ -1,0 +1,6 @@
+1. нормализовать excel. функции ТЕКСТРАЗДЕЛ(ячейка;",")
+2. appsettings.json - прописать название сервера и БД
+3. appdbcontext - актуализировать данные справочников
+4. update-database
+5. импорт таблиц pickuppoints, users, orderitems, orders, products
+6. редактирование цветов css в соответветствии с ТЗ
