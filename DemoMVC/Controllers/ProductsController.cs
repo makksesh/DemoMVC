@@ -15,6 +15,7 @@ namespace DemoMVC.Controllers
         private readonly IWebHostEnvironment _env;
         private readonly IAuthorizationService _authService;
 
+
         public ProductsController(AppDbContext context, IWebHostEnvironment env, IAuthorizationService authService)
         {
             _context = context;
@@ -123,6 +124,17 @@ namespace DemoMVC.Controllers
             var product = await _context.Products.FindAsync(id);
             if (product is null) return NotFound();
 
+            var editingId = HttpContext.Session.GetInt32("EditingProductId");
+            if (editingId.HasValue && editingId.Value != id)
+            {
+                TempData["ErrorMessage"] =
+                    $"Уже открыто редактирование товара #{editingId.Value}. " +
+                    "Сохраните или отмените его перед открытием нового.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            HttpContext.Session.SetInt32("EditingProductId", id.Value);
+
             PopulateDropdowns(product);
             return View(product);
         }
@@ -153,6 +165,10 @@ namespace DemoMVC.Controllers
 
                 _context.Update(product);
                 await _context.SaveChangesAsync();
+
+                // Освобождаем "слот" редактирования
+                HttpContext.Session.Remove("EditingProductId");
+
                 TempData["SuccessMessage"] = "Товар успешно обновлён.";
             }
             catch (DbUpdateConcurrencyException)
@@ -237,5 +253,6 @@ namespace DemoMVC.Controllers
             if (System.IO.File.Exists(path))
                 System.IO.File.Delete(path);
         }
+
     }
 }

@@ -34,6 +34,12 @@ builder.Services.AddAuthorization(options =>
     }
 });
 
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(20);
+    options.Cookie.HttpOnly = true;
+});
+
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
@@ -58,6 +64,8 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseSession();
 
 app.MapControllerRoute(
     name: "default",
